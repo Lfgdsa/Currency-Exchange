@@ -15,5 +15,6 @@ struct CurrencyModel: Codable {
   let id: String?
   let name: String?
   let priceUsd: String?
+  let symbol: String?
   let changePercent24Hr: String?
 }

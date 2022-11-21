@@ -18,7 +18,7 @@ import Foundation
 protocol MainViewModelProtocol {
   func viewDidLoad()
   
-  var currencyModels: [CurrencyModel]?  { get set }
+  var result: [MainTableViewCellModel] { get }
   var delegate: MainViewModelOutPutProcol? { get set }
 }
 
@@ -28,24 +28,39 @@ protocol MainViewModelOutPutProcol {
 
 class MainViewModel: MainViewModelProtocol {
   
-  var result: [CurrencyModel]?
+  var result: [MainTableViewCellModel] = [MainTableViewCellModel]()
   
   var delegate: MainViewModelOutPutProcol?
   
-  var currencyModels: [CurrencyModel]? = [CurrencyModel]()
-  
   let api: APIProtocol?
+  
+  private var imageData = Data()
   
   init(api: APIProtocol) {
     self.api = api
   }
   
   func viewDidLoad() {
-    api?.getAllCurrentCurrencyExchangeRate { [weak self] model in
+    api?.getAllCurrentCurrencyExchangeRate { [weak self] models in
       DispatchQueue.main.async {
-        self?.currencyModels = model
+        self?.transformModel(models)
         self?.delegate?.didDataRecived()
       }
+    }
+  }
+//
+  private func transformModel(_ models: [CurrencyModel]) {
+
+    result = []
+
+    for model in models {
+
+      guard let name = model.name else { return }
+      guard let priceForCurrentCurrency = Float(model.priceUsd ?? "") else { return }
+      guard let dayChange = Float(model.changePercent24Hr ?? "") else { return }
+
+      let newModel = MainTableViewCellModel(currency: name, priceForCurrentCurrency: priceForCurrentCurrency, dayChanges: dayChange)
+      result.append(newModel)
     }
   }
 }

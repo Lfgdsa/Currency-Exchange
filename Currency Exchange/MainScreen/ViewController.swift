@@ -12,7 +12,9 @@ class MainViewController: UIViewController {
   private var tableView: UITableView = {
     let tb = UITableView()
     tb.backgroundColor = .white
-//    tb.register(nil, forCellReuseIdentifier: "cell")
+    tb.register(MainTableViewCell.self, forCellReuseIdentifier: MainTableViewCell.description())
+    tb.separatorStyle = .none
+    tb.allowsSelection = false
     tb.translatesAutoresizingMaskIntoConstraints = false
     return tb
   }()
@@ -22,7 +24,6 @@ class MainViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     setupVC()
-    tableView.reloadData()
     viewModel?.viewDidLoad()
   }
   
@@ -46,12 +47,7 @@ extension MainViewController {
   }
   
   private func setConstraints() {
-    NSLayoutConstraint.activate([
-      tableView.topAnchor.constraint(equalTo: view.topAnchor),//.isActive = true,
-      tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),//.isActive = true,
-      tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),//.isActive = true,
-      tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)//.isActive = true
-    ])
+    tableView.anchor(top: view.topAnchor, left: view.leftAnchor, bottom: view.bottomAnchor, right: view.rightAnchor, paddingTop: 0, paddingLeft: 0, paddingBottom: 0, paddingRight: 0, width: view.frame.size.width, height: view.frame.size.height, enableInsets: false)
   }
 }
 
@@ -63,16 +59,16 @@ extension MainViewController: UITableViewDelegate {
 //MARK: - UITableViewDataSource
 extension MainViewController: UITableViewDataSource {
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    guard let rows = viewModel?.currencyModels?.count else { return 0 }
+    guard let rows = viewModel?.result.count else { return 0 }
     return rows
   }
   
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-    let cell = UITableViewCell()
+    guard let cell = tableView.dequeueReusableCell(withIdentifier: MainTableViewCell.description(), for: indexPath) as? MainTableViewCell else { return UITableViewCell()}
     
-    guard let model = viewModel?.currencyModels?[indexPath.row] else { return cell }
+    guard let model = viewModel?.result[indexPath.row] else { return cell }
     
-    cell.textLabel?.text = model.name
+    cell.model = model
     return cell
   }
 }

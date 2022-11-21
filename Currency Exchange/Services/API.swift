@@ -6,22 +6,24 @@
 //
 
 import Foundation
+//import UIKit
 
 protocol APIProtocol {
   func getAllCurrentCurrencyExchangeRate(completion: @escaping (([CurrencyModel]) -> Void))
+  func getImageFor(symbol: String?, complition: @escaping (Data) -> Void)
 
 }
 
 final class API: APIProtocol {
   
-  private var url = "https://api.coincap.io/v2"
+  private var mainUrlAPI = "https://api.coincap.io/v2"
   
-  // MARK: получаем актуальный список курса валют
+  // MARK: get actual list of currency rate
   func getAllCurrentCurrencyExchangeRate(completion: @escaping (([CurrencyModel]) -> Void)) {
 
-    guard let currentUrl = URL(string: "\(url)/assets") else { return }
+    guard let url = URL(string: "\(mainUrlAPI)/assets") else { return }
 
-    let request = URLRequest(url: currentUrl)
+    let request = URLRequest(url: url)
 
     URLSession.shared.dataTask(with: request) { data, _, error  in
       guard let data = data else { return }
@@ -35,6 +37,20 @@ final class API: APIProtocol {
         return
       }
 
+    }.resume()
+  }
+  
+  // MARK: - get image for exect crypto symbol
+  func getImageFor(symbol: String?, complition: @escaping (Data) -> Void) {
+    
+    guard let url = URL(string: "\(mainUrlAPI)/assets/icons/\(String(describing: symbol))@2x.png") else { return }
+    
+    let request = URLRequest(url: url)
+    
+    URLSession.shared.dataTask(with: request) { data, _, error in
+      guard let data = data else { return }
+      print(data)
+      complition(data)
     }.resume()
   }
 }
